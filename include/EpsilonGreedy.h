@@ -4,7 +4,7 @@
 #include <Eigen/Dense>
 #include "QLearning.h"
 
-class epsilonGreedy {
+class EpsilonGreedy {
 private:
   float epsilon;
   float beta;
@@ -14,7 +14,7 @@ private:
   void decay(int step);
 
 public:
-  epsilonGreedy(float betaValue);
+  EpsilonGreedy(float betaValue);
   int chooseAction(const Eigen::VectorXd& actionSpace, int currentState, QLearning& QLearning, int step);
 };
 

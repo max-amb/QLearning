@@ -5,7 +5,7 @@
 #include "QLearning.h"
 #include "EpsilonGreedy.h"
 
-epsilonGreedy::epsilonGreedy(float betaValue) : rng(dev()){
+EpsilonGreedy::EpsilonGreedy(float betaValue) : rng(dev()){
   beta = betaValue;
     epsilon = 1.0f;
 
@@ -13,7 +13,7 @@ epsilonGreedy::epsilonGreedy(float betaValue) : rng(dev()){
     dis = std::uniform_real_distribution<float>(0.0f, 1.0f);
   };
 
-int epsilonGreedy::chooseAction(const Eigen::VectorXd& actionSpace, int currentState, QLearning& QLearning, int step) {
+int EpsilonGreedy::chooseAction(const Eigen::VectorXd& actionSpace, int currentState, QLearning& QLearning, int step) {
   int action;
   if (dis(rng) < epsilon) {
     // Pick randomly
@@ -36,6 +36,6 @@ int epsilonGreedy::chooseAction(const Eigen::VectorXd& actionSpace, int currentS
   return action;
 };
 
-void epsilonGreedy::decay(int step) {
+void EpsilonGreedy::decay(int step) {
   epsilon = std::pow(beta, step);
 };

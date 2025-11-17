@@ -14,7 +14,7 @@ PYBIND11_MODULE(rl_env, m) {
       .def("get_q_table", &QLearning::getQTable);
       // .def("set_q_table", &QLearning::setQTable);
     
-    py::class_<epsilonGreedy>(m, "epsilonGreedy")
+    py::class_<EpsilonGreedy>(m, "epsilonGreedy")
       .def(py::init<float>())
-      .def("choose_action", &epsilonGreedy::chooseAction, "The function to choose an action");
+      .def("choose_action", &EpsilonGreedy::chooseAction, "The function to choose an action");
 }

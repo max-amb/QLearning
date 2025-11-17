@@ -1,11 +1,11 @@
 #include <Eigen/Dense>
 #include "QLearning.h"
 
-QLearning::QLearning(int numberOfActions, int numberOfStates, double learningRate, double discountRate) {
-    numActions = numberOfActions; 
-    numStates = numberOfStates;
-    alpha = learningRate;
-    gamma = discountRate;
+QLearning::QLearning(int numberOfActions, int numberOfStates, double learningRate, double discountRate)
+  : numActions(numberOfActions),
+    numStates(numberOfStates),
+    alpha(learningRate),
+    gamma(discountRate) {
     resetQTable();
   };
 
