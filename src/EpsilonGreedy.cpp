@@ -1,18 +1,19 @@
 #include <cmath>
-#include <iostream>
 #include <random>
 #include <stdexcept>
 #include <Eigen/Dense>
 #include "QLearning.h"
 #include "EpsilonGreedy.h"
 
-EpsilonGreedy::EpsilonGreedy(float betaValue) : rng(dev()){
-  beta = betaValue;
-    epsilon = 1.0f;
+EpsilonGreedy::EpsilonGreedy(float beta, float epsilonFLoor)
+  : rng(dev()),
+  beta(beta),
+  epsilonFloor(epsilonFLoor) {
+  epsilon = 1.0f;
 
     // Initialise random
-    dis = std::uniform_real_distribution<float>(0.0f, 1.0f);
-  };
+  dis = std::uniform_real_distribution<float>(0.0f, 1.0f);
+};
 
 int EpsilonGreedy::chooseAction(const Eigen::VectorXd& actionSpace, int currentState, QLearning& QLearning, int step) {
   if (actionSpace.size() == 0) {
@@ -45,5 +46,7 @@ int EpsilonGreedy::chooseAction(const Eigen::VectorXd& actionSpace, int currentS
 };
 
 void EpsilonGreedy::decay(int step) {
-  epsilon = std::pow(beta, step);
+  if (epsilon == epsilonFloor) { return; }
+  float decayed = std::pow(beta, step);
+  epsilon = decayed < epsilonFloor ? epsilonFloor : decayed;
 };
