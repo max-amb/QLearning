@@ -5,12 +5,12 @@ from collections import deque
 import rl_env 
 
 def run_frozen_lake(episodes=500000, max_steps=200, window_size=100, target_success_rate=1.0):
-    env = gym.make('FrozenLake-v1', is_slippery=True)  # stochastic/slippery dynamics
-    n_states = env.observation_space.n
-    n_actions = env.action_space.n
+    env = gym.make('FrozenLake-v1', is_slippery=True)
+    n_states = env.observation_space.n # Get the number of states
+    n_actions = env.action_space.n # Get the number of actions
 
-    q = rl_env.QLearning(n_actions, n_states, 0.75, 0.95)  # smaller alpha for stability on slippery
-    eg = rl_env.epsilonGreedy(0.999)  # slow epsilon decay: epsilon = 0.999^episode
+    q = rl_env.QLearning(n_actions, n_states, 0.1, 0.9)  # smaller alpha for stability on slippery
+    eg = rl_env.epsilonGreedy(0.9999, 0.0)  # slow epsilon decay: epsilon = 0.999^episode
 
     success_history = deque(maxlen=window_size)
 
@@ -38,7 +38,6 @@ def run_frozen_lake(episodes=500000, max_steps=200, window_size=100, target_succ
                 print(f"Reached {target_success_rate * 100:.1f}% success over the last {window_size} episodes, stopping early.")
                 break
     env.close()
-    print("\nLearned Q-table (slice of first 5 states):")
     q_table = q.get_q_table()
     print(q_table)
     evaluate_policy(q)
