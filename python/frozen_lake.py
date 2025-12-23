@@ -18,7 +18,7 @@ def run_frozen_lake(episodes=500000, max_steps=200, window_size=100, target_succ
         state, _ = env.reset()
         episode_success = 0
         for step in range(max_steps):
-            action_space = np.arange(n_actions, dtype=float)
+            action_space = np.arange(n_actions, dtype=int) # Returns [0, 1, ..., n_actions-1]
             action = eg.choose_action(action_space, state, q, ep)
             next_state, reward, terminated, truncated, _ = env.step(int(action))
             q.update(state, int(action), reward, next_state)
