@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 #include "QLearning.h"
 #include "EpsilonGreedy.h"
+#include "MonteCarloSearch.h"
 
 EpsilonGreedy::EpsilonGreedy(float beta, float epsilonFLoor)
   : rng(dev()),
@@ -16,7 +17,7 @@ EpsilonGreedy::EpsilonGreedy(float beta, float epsilonFLoor)
 };
 
 // Probably shouldn't be here but oh well
-int EpsilonGreedy::chooseAction(const Eigen::VectorXd& actionSpace, int currentState, QLearning& QLearning, int step) {
+int EpsilonGreedy::chooseAction(const Eigen::VectorXd& actionSpace, int currentState, QLearning& QLearning, MonteCarloSearch& MCS, int step) {
   // Bounds checking
   if (actionSpace.size() == 0) {
     throw std::invalid_argument("Action space is empty");
@@ -26,10 +27,8 @@ int EpsilonGreedy::chooseAction(const Eigen::VectorXd& actionSpace, int currentS
   }
   
   int action;
-  if (dis(rng) < epsilon) { // If our distribution gives a value less than epsilon
-    // Pick randomly
-    std::uniform_int_distribution<int> disui(0, actionSpace.size() - 1);
-    action = disui(rng);
+  if (dis(rng) < epsilon) {
+    action = MCS.search(actionSpace, QLearning, currentState);
   } else {
     auto row = QLearning.getQTable().row(currentState);
     double maxValue = row.maxCoeff();

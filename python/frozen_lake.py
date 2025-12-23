@@ -1,16 +1,19 @@
 import numpy as np
 import gymnasium as gym
+import copy
 from collections import deque
 
 import rl_env 
 
+env = gym.make('FrozenLake-v1', is_slippery=True)
+
 def run_frozen_lake(episodes=500000, max_steps=200, window_size=100, target_success_rate=1.0):
-    env = gym.make('FrozenLake-v1', is_slippery=True)
     n_states = env.observation_space.n # Get the number of states
     n_actions = env.action_space.n # Get the number of actions
 
-    q = rl_env.QLearning(n_actions, n_states, 0.1, 0.9)  # smaller alpha for stability on slippery
+    q = rl_env.QLearning(n_actions, n_states, 0.01, 0.9)  # smaller alpha for stability on slippery
     eg = rl_env.epsilonGreedy(0.9999, 0.0)  # slow epsilon decay: epsilon = 0.999^episode
+    mcs = rl_env.MonteCarloSearch(10, rolloutReward)
 
     success_history = deque(maxlen=window_size)
 
@@ -19,8 +22,8 @@ def run_frozen_lake(episodes=500000, max_steps=200, window_size=100, target_succ
         episode_success = 0
         for step in range(max_steps):
             action_space = np.arange(n_actions, dtype=int) # Returns [0, 1, ..., n_actions-1]
-            action = eg.choose_action(action_space, state, q, ep)
-            next_state, reward, terminated, truncated, _ = env.step(int(action))
+            action = eg.choose_action(action_space, state, q, mcs, ep)
+            next_state, reward, terminated, truncated, _ = env.step(action)
             q.update(state, int(action), reward, next_state)
             state = next_state
             if terminated or truncated:
@@ -61,6 +64,16 @@ def evaluate_policy(q, episodes=100, max_steps=200):
 
     success_rate = successes / episodes * 100
     print(f"Evaluation success rate over {episodes} episodes: {success_rate:.1f}%")
+
+def rolloutReward(currentState, currentAction): # Current state action
+    saveState = copy.deepcopy(env)
+    _, reward, terminated, truncated, _ = saveState.step(currentAction)
+
+    while not (terminated or truncated):
+        _, new_reward, terminated, truncated, _ = saveState.step(currentAction)
+        reward = new_reward + reward
+
+    return reward
 
 if __name__ == '__main__':
     run_frozen_lake()

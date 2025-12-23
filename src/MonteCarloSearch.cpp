@@ -19,7 +19,7 @@ int MonteCarloSearch::search(const Eigen::VectorXd& actionSpace, QLearning& QLea
   std::vector<int> visits(actionSpace.size(), 0);
   if (actionSpace.size() > 1) {
     int iterations = 0;
-    for (int currentAction = 0; currentAction < actionSpace.size(); currentAction = (currentAction+1)%actionSpace.size()) { // Iterates over the actionspace
+    for (int currentAction = 0; currentAction < actionSpace.size(); currentAction = (currentAction + 1) % actionSpace.size()) { // Iterates over the actionspace
       if (iterations >= iterationLimit) {
         break;
       }
