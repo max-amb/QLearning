@@ -1,6 +1,7 @@
 #include <cmath>
 #include <random>
 #include <stdexcept>
+#include <limits>
 #include <Eigen/Dense>
 #include "QLearning.h"
 #include "EpsilonGreedy.h"
@@ -31,16 +32,25 @@ int EpsilonGreedy::chooseAction(const Eigen::VectorXd& actionSpace, int currentS
     action = MCS.search(actionSpace, QLearning, currentState);
   } else {
     auto row = QLearning.getQTable().row(currentState);
-    double maxValue = row.maxCoeff();
-
+    double maxValue = -std::numeric_limits<double>::infinity();
     std::vector<int> maxValues;
+    bool action_selected = false;
     for (int i = 0; i < row.size() && i < actionSpace.size(); ++i) {
-        if (row[i] == maxValue) {
-            maxValues.push_back(i);
-        }
+      if (row[i] > maxValue) {
+        action_selected = true;
+        maxValue = row[i];
+        maxValues.clear();
+        maxValues.push_back(row[i]);
+      } else if (row[i] == maxValue) {
+        maxValues.push_back(row[i]);
+      }
     }
-    std::uniform_int_distribution<int> disui(0, maxValues.size() - 1);
-    action = maxValues[disui(rng)];
+    if (action_selected) { 
+      std::uniform_int_distribution<int> disui(0, maxValues.size() - 1);
+      action = maxValues[disui(rng)];
+    } else {
+      action = MCS.search(actionSpace, QLearning, currentState);
+    }
   }
   decay(step);
   return action;
