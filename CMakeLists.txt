@@ -17,6 +17,7 @@ pybind11_add_module(rl_env
     src/bindings.cpp
     src/QLearning.cpp
     src/EpsilonGreedy.cpp
+    src/MonteCarloSearch.cpp
 )
 
 # Link Eigen to the pybind11 module
