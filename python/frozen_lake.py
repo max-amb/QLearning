@@ -74,11 +74,14 @@ def evaluate_policy(q, episodes=100, max_steps=200):
 
 def rolloutReward(currentState, currentAction): # Current state action
     saveState = copy.deepcopy(env)
+    number_of_actions = env.action_space.n # Get the number of actions
     _, reward, terminated, truncated, _ = saveState.step(currentAction)
 
+    steps = 1
     while not (terminated or truncated):
-        _, new_reward, terminated, truncated, _ = saveState.step(currentAction)
-        reward = new_reward + reward
+        _, new_reward, terminated, truncated, _ = saveState.step(random.randrange(0, number_of_actions))
+        reward = (float(new_reward)*(DISCOUNT_REWARD ** steps)) + float(reward)
+        steps += 1;
 
     return reward
 
