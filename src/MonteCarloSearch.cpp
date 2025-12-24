@@ -14,7 +14,8 @@ int MonteCarloSearch::search(const Eigen::VectorXd& actionSpace, QLearning& QLea
     throw std::invalid_argument("Action space is empty");
   } 
 
-  int selectedAction = 0;
+  std::uniform_int_distribution<int> disui  = std::uniform_int_distribution<int>(0, actionSpace.size()-1);
+  int selectedAction = disui(rng);
   std::vector<float> scores(actionSpace.size(), 0.0);
   std::vector<int> visits(actionSpace.size(), 0);
   if (actionSpace.size() > 1) {
@@ -32,6 +33,10 @@ int MonteCarloSearch::search(const Eigen::VectorXd& actionSpace, QLearning& QLea
 
     float highestScore = 0.0;
     for (int i = 0; i < actionSpace.size(); i++) {
+      if (visits[i] == 0) {
+        scores[i] = rolloutReward(currentState, i); 
+        visits[i]++;
+      } // Avoiding div by 0
       float expectedScore = scores[i]/visits[i];
       if (expectedScore > highestScore) {
         selectedAction = i;

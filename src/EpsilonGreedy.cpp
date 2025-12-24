@@ -28,21 +28,22 @@ int EpsilonGreedy::chooseAction(const Eigen::VectorXd& actionSpace, int currentS
   }
   
   int action;
-  if (dis(rng) < epsilon) {
+  float randomGeneration = dis(rng);
+  if (randomGeneration < epsilon) {
     action = MCS.search(actionSpace, QLearning, currentState);
   } else {
-    auto row = QLearning.getQTable().row(currentState);
+    auto row = QLearning.getQTable().row(currentState); // Get the row, full of Q values
     double maxValue = -std::numeric_limits<double>::infinity();
     std::vector<int> maxValues;
     bool action_selected = false;
-    for (int i = 0; i < row.size() && i < actionSpace.size(); ++i) {
-      if (row[i] > maxValue) {
+    for (int i = 0; i < row.size(); ++i) { // Look at each Q value in the row
+      if (row[i] > maxValue) { // If Q better than current best Q
         action_selected = true;
         maxValue = row[i];
         maxValues.clear();
-        maxValues.push_back(row[i]);
+        maxValues.push_back(i);
       } else if (row[i] == maxValue) {
-        maxValues.push_back(row[i]);
+        maxValues.push_back(i);
       }
     }
     if (action_selected) { 
