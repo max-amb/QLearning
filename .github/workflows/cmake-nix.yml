@@ -44,7 +44,7 @@ jobs:
     - name: Upload library
       uses: actions/upload-artifact@v4
       with:
-        name: rl_env-${{github.ref_name}}.cpython-313-x86_64-linux-gnu.so
+        name: rl_env.cpython-313-x86_64-linux-gnu.so
         path: |
           ${{github.workspace}}/build/rl_env.cpython-313-x86_64-linux-gnu.so
 
