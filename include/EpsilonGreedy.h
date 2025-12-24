@@ -3,6 +3,7 @@
 #include <random>
 #include <Eigen/Dense>
 #include "QLearning.h"
+#include "MonteCarloSearch.h"
 
 class EpsilonGreedy {
 private:
@@ -16,6 +17,7 @@ private:
 
 public:
   EpsilonGreedy(float betaValue, float epsilonFloor);
-  int chooseAction(const Eigen::VectorXd& actionSpace, int currentState, QLearning& QLearning, int step);
+  int chooseAction(const Eigen::VectorXd& actionSpace, int currentState, QLearning& QLearning, MonteCarloSearch& MCS, int step);
+  float getEpsilon();
 };
 

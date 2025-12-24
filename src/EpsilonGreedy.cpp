@@ -1,9 +1,11 @@
 #include <cmath>
 #include <random>
 #include <stdexcept>
+#include <limits>
 #include <Eigen/Dense>
 #include "QLearning.h"
 #include "EpsilonGreedy.h"
+#include "MonteCarloSearch.h"
 
 EpsilonGreedy::EpsilonGreedy(float beta, float epsilonFLoor)
   : rng(dev()),
@@ -16,7 +18,7 @@ EpsilonGreedy::EpsilonGreedy(float beta, float epsilonFLoor)
 };
 
 // Probably shouldn't be here but oh well
-int EpsilonGreedy::chooseAction(const Eigen::VectorXd& actionSpace, int currentState, QLearning& QLearning, int step) {
+int EpsilonGreedy::chooseAction(const Eigen::VectorXd& actionSpace, int currentState, QLearning& QLearning, MonteCarloSearch& MCS, int step) {
   // Bounds checking
   if (actionSpace.size() == 0) {
     throw std::invalid_argument("Action space is empty");
@@ -26,22 +28,30 @@ int EpsilonGreedy::chooseAction(const Eigen::VectorXd& actionSpace, int currentS
   }
   
   int action;
-  if (dis(rng) < epsilon) { // If our distribution gives a value less than epsilon
-    // Pick randomly
-    std::uniform_int_distribution<int> disui(0, actionSpace.size() - 1);
-    action = disui(rng);
+  float randomGeneration = dis(rng);
+  if (randomGeneration < epsilon) {
+    action = MCS.search(actionSpace, QLearning, currentState);
   } else {
-    auto row = QLearning.getQTable().row(currentState);
-    double maxValue = row.maxCoeff();
-
+    auto row = QLearning.getQTable().row(currentState); // Get the row, full of Q values
+    double maxValue = -std::numeric_limits<double>::infinity();
     std::vector<int> maxValues;
-    for (int i = 0; i < row.size() && i < actionSpace.size(); ++i) {
-        if (row[i] == maxValue) {
-            maxValues.push_back(i);
-        }
+    bool action_selected = false;
+    for (int i = 0; i < row.size(); ++i) { // Look at each Q value in the row
+      if (row[i] > maxValue) { // If Q better than current best Q
+        action_selected = true;
+        maxValue = row[i];
+        maxValues.clear();
+        maxValues.push_back(i);
+      } else if (row[i] == maxValue) {
+        maxValues.push_back(i);
+      }
     }
-    std::uniform_int_distribution<int> disui(0, maxValues.size() - 1);
-    action = maxValues[disui(rng)];
+    if (action_selected) { 
+      std::uniform_int_distribution<int> disui(0, maxValues.size() - 1);
+      action = maxValues[disui(rng)];
+    } else {
+      action = MCS.search(actionSpace, QLearning, currentState);
+    }
   }
   decay(step);
   return action;
@@ -52,3 +62,7 @@ void EpsilonGreedy::decay(int step) {
   float decayed = std::pow(beta, step);
   epsilon = decayed < epsilonFloor ? epsilonFloor : decayed;
 };
+
+float EpsilonGreedy::getEpsilon() {
+  return epsilon;
+}
