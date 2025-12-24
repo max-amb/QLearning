@@ -39,7 +39,7 @@ jobs:
       # Build your program with the given configuration
       run: |
         nix develop --command \
-        cmake -DCMAKE_BUILD_TYPE=Release --build ${{github.workspace}}/build
+        make -C build/
 
     - name: Upload library
       uses: actions/upload-artifact@v4
