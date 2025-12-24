@@ -1,33 +1,40 @@
 import numpy as np
 import gymnasium as gym
 import copy
+import random
 from collections import deque
 
 import rl_env 
 
+LEARNING_RATE = 100.0
+DISCOUNT_REWARD = 0.5
+EPSILON_POWER = 0.995
+EPSILON_FLOOR = 0.0
+MCS_ITERATION_LIMIT = 100
+
 env = gym.make('FrozenLake-v1', is_slippery=True)
 
-def run_frozen_lake(episodes=500000, max_steps=200, window_size=100, target_success_rate=1.0):
+def run_frozen_lake(episodes=500000, max_steps=100, window_size=100, target_success_rate=1.0):
     n_states = env.observation_space.n # Get the number of states
     n_actions = env.action_space.n # Get the number of actions
+    action_space = np.arange(n_actions, dtype=int) # Returns [0, 1, ..., n_actions-1]
 
-    q = rl_env.QLearning(n_actions, n_states, 0.01, 0.9)  # smaller alpha for stability on slippery
-    eg = rl_env.epsilonGreedy(0.9999, 0.0)  # slow epsilon decay: epsilon = 0.999^episode
-    mcs = rl_env.MonteCarloSearch(10, rolloutReward)
+    q = rl_env.QLearning(n_actions, n_states, LEARNING_RATE, DISCOUNT_REWARD)
+    eg = rl_env.epsilonGreedy(EPSILON_POWER, EPSILON_FLOOR)
+    mcs = rl_env.MonteCarloSearch(MCS_ITERATION_LIMIT, rolloutReward)
 
     success_history = deque(maxlen=window_size)
 
     for ep in range(episodes):
         state, _ = env.reset()
         episode_success = 0
-        for step in range(max_steps):
-            action_space = np.arange(n_actions, dtype=int) # Returns [0, 1, ..., n_actions-1]
+        for _ in range(max_steps):
             action = eg.choose_action(action_space, state, q, mcs, ep)
             next_state, reward, terminated, truncated, _ = env.step(action)
             q.update(state, int(action), reward, next_state)
             state = next_state
             if terminated or truncated:
-                episode_success = int(reward > 0)
+                episode_success = int(float(reward) > 0)
                 break
         success_history.append(episode_success)
 
@@ -36,7 +43,7 @@ def run_frozen_lake(episodes=500000, max_steps=200, window_size=100, target_succ
                 window_rate = sum(success_history) / len(success_history) * 100
             else:
                 window_rate = 0.0
-            print(f"Episode {ep+1}/{episodes} Success rate (last {window_size}): {window_rate:.1f}%")
+            print(f"Episode {ep+1}/{episodes} Success rate (last {window_size}): {window_rate:.1f}%, Epsilon {eg.get_epsilon()}")
             if window_rate >= target_success_rate * 100:
                 print(f"Reached {target_success_rate * 100:.1f}% success over the last {window_size} episodes, stopping early.")
                 break
@@ -58,7 +65,7 @@ def evaluate_policy(q, episodes=100, max_steps=200):
             next_state, reward, terminated, truncated, _ = env.step(action)
             state = next_state
             if terminated or truncated:
-                successes += int(reward > 0)
+                successes += int(float(reward) > 0) # If succesfull reward > 0 => True which converts to 1
                 break
     env.close()
 
