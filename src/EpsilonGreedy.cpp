@@ -61,3 +61,7 @@ void EpsilonGreedy::decay(int step) {
   float decayed = std::pow(beta, step);
   epsilon = decayed < epsilonFloor ? epsilonFloor : decayed;
 };
+
+float EpsilonGreedy::getEpsilon() {
+  return epsilon;
+}

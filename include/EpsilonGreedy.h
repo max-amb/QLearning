@@ -18,5 +18,6 @@ private:
 public:
   EpsilonGreedy(float betaValue, float epsilonFloor);
   int chooseAction(const Eigen::VectorXd& actionSpace, int currentState, QLearning& QLearning, MonteCarloSearch& MCS, int step);
+  float getEpsilon();
 };
 

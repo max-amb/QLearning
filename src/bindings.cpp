@@ -17,7 +17,8 @@ PYBIND11_MODULE(rl_env, m) {
   
   py::class_<EpsilonGreedy>(m, "epsilonGreedy")
     .def(py::init<float, float>(), py::arg("The beta value"), py::arg("epsilonFloor"))
-    .def("choose_action", &EpsilonGreedy::chooseAction, "The function to choose an action");
+    .def("choose_action", &EpsilonGreedy::chooseAction, "The function to choose an action")
+    .def("get_epsilon", &EpsilonGreedy::getEpsilon, "An observer for epsilon for debugging");
 
   py::class_<MonteCarloSearch>(m, "MonteCarloSearch")
     .def(py::init<int, MonteCarloSearch::RewardRollout>(), py::arg("iteration limit"), py::arg("Function to randomly iterate and return reward"))
