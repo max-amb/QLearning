@@ -17,6 +17,7 @@ pybind11_add_module(rl_env
     src/bindings.cpp
     src/QLearning.cpp
     src/EpsilonGreedy.cpp
+    src/MonteCarloSearch.cpp
 )
 
 # Link Eigen to the pybind11 module
@@ -24,3 +25,9 @@ target_link_libraries(rl_env PRIVATE Eigen3::Eigen)
 
 # Add include directories if you have custom headers
 target_include_directories(rl_env PRIVATE "${CMAKE_SOURCE_DIR}/include")
+
+# Add compile options
+target_compile_options(rl_env PRIVATE
+    $<$<CONFIG:Release>:-O3 -march=native -flto>
+    $<$<CONFIG:Debug>:-O0 -g>
+)
