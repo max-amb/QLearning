@@ -30,8 +30,9 @@ int EpsilonGreedy::chooseAction(const Eigen::VectorXd& actionSpace, int currentS
   int action;
   float randomGeneration = dis(rng);
   if (randomGeneration < epsilon) {
-    action = MCS.search(actionSpace, QLearning, currentState);
-  } else {
+    std::uniform_int_distribution<int> disui(0, actionSpace.size() - 1);
+    action = actionSpace[disui(rng)];
+  } else { // Exploit
     auto row = QLearning.getQTable().row(currentState); // Get the row, full of Q values
     double maxValue = -std::numeric_limits<double>::infinity();
     std::vector<int> maxValues;

@@ -1,5 +1,7 @@
 #include <Eigen/Dense>
+#include <vector>
 #include <stdexcept>
+#include <algorithm>
 #include "QLearning.h"
 
 QLearning::QLearning(int numberOfActions, int numberOfStates, double learningRate, double discountRate)
@@ -8,6 +10,7 @@ QLearning::QLearning(int numberOfActions, int numberOfStates, double learningRat
     alpha(learningRate),
     gamma(discountRate) {
     resetQTable(); // Set QTable to all zeros
+    savedQ = std::vector(numberOfStates, 0);
   };
 
 void QLearning::update(int state, int action, double reward, int newState) {
@@ -36,3 +39,24 @@ void QLearning::setQTable(const Eigen::MatrixXd& newQTable) {
 }*/
 
 Eigen::MatrixXd& QLearning::getQTable() { return qTable; }
+
+std::vector<int> QLearning::generateSavedQ(){
+  std::vector<int> Q;
+  for (int i = 0; i<qTable.rows(); i++) {
+    Eigen::MatrixXd::Index maxIndex;
+    qTable.row(i).maxCoeff(&maxIndex);
+    Q.push_back(maxIndex);
+  }
+  return Q;
+}
+
+bool QLearning::checkConvergence() {
+  std::vector<int> newSavedQ = generateSavedQ();
+  for (int i = 0; i < newSavedQ.size(); i++) { // Each row is a state
+    if (newSavedQ[i] != savedQ[i]) {
+      savedQ = newSavedQ;
+      return false;
+    }
+  }
+  return true;
+}

@@ -12,7 +12,8 @@ PYBIND11_MODULE(rl_env, m) {
   py::class_<QLearning>(m, "QLearning")
     .def(py::init<int, int, float, float>())
     .def("update", &QLearning::update, "The update function for QLearning", py::arg("state"), py::arg("action"), py::arg("reward"), py::arg("new_state"))
-    .def("get_q_table", &QLearning::getQTable);
+    .def("get_q_table", &QLearning::getQTable)
+    .def("check_convergence", &QLearning::checkConvergence);
     // .def("set_q_table", &QLearning::setQTable);
   
   py::class_<EpsilonGreedy>(m, "epsilonGreedy")
